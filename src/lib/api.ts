@@ -1,4 +1,6 @@
-const API_BASE = "https://socializeserverbackend-production.up.railway.app";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL ??
+  "https://socializeserverbackend-production.up.railway.app";
 
 class ApiClient {
   private getToken(): string | null {

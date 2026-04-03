@@ -18,6 +18,79 @@ function normalizeCategory(raw: unknown): import("@/types").Category {
   };
 }
 
+function normalizeChatUser(raw: unknown): import("@/types").ChatUser {
+  const r = raw as Record<string, unknown>;
+  const av = r.avatarUrl ?? r.avatar_url;
+  const loc = r.locationLabel ?? r.location_label;
+  return {
+    id: Number(r.id),
+    displayName: String(r.displayName ?? r.display_name ?? ""),
+    avatarUrl: av == null ? null : String(av),
+    locationLabel: loc == null ? null : String(loc),
+  };
+}
+
+function normalizeLastMessage(
+  raw: unknown
+): import("@/types").ChatLastMessage | null {
+  if (raw == null || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  return {
+    id: Number(r.id),
+    body: String(r.body ?? ""),
+    createdAt: String(r.createdAt ?? r.created_at ?? ""),
+    senderId: Number(r.senderId ?? r.sender_id),
+  };
+}
+
+function normalizeConversationMember(
+  raw: unknown
+): import("@/types").ConversationMember {
+  const r = raw as Record<string, unknown>;
+  return {
+    role: String(r.role ?? "member"),
+    joinedAt: String(r.joinedAt ?? r.joined_at ?? ""),
+    lastReadAt:
+      r.lastReadAt === null || r.last_read_at === null
+        ? null
+        : String(r.lastReadAt ?? r.last_read_at ?? ""),
+    user: normalizeChatUser(r.user),
+  };
+}
+
+function normalizeConversation(raw: unknown): import("@/types").Conversation {
+  const r = raw as Record<string, unknown>;
+  const t = String(r.type ?? "direct");
+  const type: "direct" | "group" = t === "group" ? "group" : "direct";
+  const membersRaw = r.members;
+  const members = Array.isArray(membersRaw)
+    ? membersRaw.map(normalizeConversationMember)
+    : [];
+  return {
+    id: Number(r.id),
+    type,
+    title: String(r.title ?? ""),
+    createdAt: String(r.createdAt ?? r.created_at ?? ""),
+    updatedAt: String(r.updatedAt ?? r.updated_at ?? ""),
+    unreadCount: Number(r.unreadCount ?? r.unread_count ?? 0),
+    memberCount: Number(r.memberCount ?? r.member_count ?? members.length),
+    lastMessage: normalizeLastMessage(r.lastMessage ?? r.last_message),
+    members,
+  };
+}
+
+function normalizeMessage(raw: unknown): import("@/types").Message {
+  const r = raw as Record<string, unknown>;
+  return {
+    id: Number(r.id),
+    conversationId: Number(r.conversationId ?? r.conversation_id),
+    senderId: Number(r.senderId ?? r.sender_id),
+    body: String(r.body ?? ""),
+    createdAt: String(r.createdAt ?? r.created_at ?? ""),
+    sender: normalizeChatUser(r.sender),
+  };
+}
+
 class ApiClient {
   private getToken(): string | null {
     if (typeof window === "undefined") return null;
@@ -166,6 +239,84 @@ class ApiClient {
   unfavorite(eventId: number) {
     return this.del<{ eventId: number; saved: boolean }>(
       `/api/events/${eventId}/favorite`
+    );
+  }
+
+  // Chat
+  async getConversations(params?: {
+    type?: "all" | "direct" | "group";
+    limit?: number;
+  }) {
+    const q = new URLSearchParams();
+    if (params?.type) q.set("type", params.type);
+    if (params?.limit != null) q.set("limit", String(params.limit));
+    const qs = q.toString();
+    const path = `/api/chat/conversations${qs ? `?${qs}` : ""}`;
+    const res = await this.get<{
+      type?: string;
+      conversations?: unknown[];
+    }>(path);
+    const raw = Array.isArray(res.conversations) ? res.conversations : [];
+    return {
+      type: (res.type as "all" | "direct" | "group") ?? "all",
+      conversations: raw.map(normalizeConversation),
+    } satisfies import("@/types").ConversationsResponse;
+  }
+
+  async createDirectConversation(userId: number) {
+    const res = await this.post<{ conversation?: unknown }>(
+      "/api/chat/conversations/direct",
+      { userId }
+    );
+    return {
+      conversation: normalizeConversation(res.conversation ?? {}),
+    } satisfies import("@/types").ConversationResponse;
+  }
+
+  async createGroupConversation(title: string, memberIds: number[]) {
+    const res = await this.post<{ conversation?: unknown }>(
+      "/api/chat/conversations/group",
+      { title, memberIds }
+    );
+    return {
+      conversation: normalizeConversation(res.conversation ?? {}),
+    } satisfies import("@/types").ConversationResponse;
+  }
+
+  async getMessages(
+    conversationId: number,
+    params?: { limit?: number; beforeId?: number }
+  ) {
+    const q = new URLSearchParams();
+    if (params?.limit != null) q.set("limit", String(params.limit));
+    if (params?.beforeId != null) q.set("beforeId", String(params.beforeId));
+    const qs = q.toString();
+    const path = `/api/chat/conversations/${conversationId}/messages${qs ? `?${qs}` : ""}`;
+    const res = await this.get<{
+      conversation?: unknown;
+      messages?: unknown[];
+    }>(path);
+    const messagesRaw = Array.isArray(res.messages) ? res.messages : [];
+    return {
+      conversation: normalizeConversation(res.conversation ?? {}),
+      messages: messagesRaw.map(normalizeMessage),
+    } satisfies import("@/types").MessagesResponse;
+  }
+
+  async sendMessage(conversationId: number, body: string) {
+    const res = await this.post<{ message?: unknown }>(
+      `/api/chat/conversations/${conversationId}/messages`,
+      { body }
+    );
+    return {
+      message: normalizeMessage(res.message ?? {}),
+    } satisfies import("@/types").SendMessageResponse;
+  }
+
+  async markConversationRead(conversationId: number) {
+    return this.post<import("@/types").MarkReadResponse>(
+      `/api/chat/conversations/${conversationId}/read`,
+      {}
     );
   }
 }

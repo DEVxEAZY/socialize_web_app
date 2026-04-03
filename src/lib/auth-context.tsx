@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from "react";
-import { api } from "./api";
+import { api, ApiRequestError } from "./api";
 import type { User } from "@/types";
 
 interface AuthState {
@@ -27,8 +27,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const { user } = await api.getMe();
       setUser(user);
-    } catch {
-      localStorage.removeItem("socialize_token");
+    } catch (err) {
+      if (err instanceof ApiRequestError && err.status === 401) {
+        localStorage.removeItem("socialize_token");
+      }
     } finally {
       setLoading(false);
     }

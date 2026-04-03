@@ -91,6 +91,39 @@ function normalizeMessage(raw: unknown): import("@/types").Message {
   };
 }
 
+/** Erro HTTP com status; usado para nao confundir 401 de login com sessao expirada. */
+export class ApiRequestError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number
+  ) {
+    super(message);
+    this.name = "ApiRequestError";
+  }
+}
+
+function pathBase(path: string): string {
+  const i = path.indexOf("?");
+  return i === -1 ? path : path.slice(0, i);
+}
+
+/** Endpoints onde 401 significa credenciais/codigo invalidos, nao sessao expirada. */
+function isAuthCredentialPath(path: string): boolean {
+  const p = pathBase(path);
+  return (
+    p === "/api/auth/login" ||
+    p === "/api/auth/register" ||
+    p === "/api/auth/forgot-password" ||
+    p === "/api/auth/reset-password"
+  );
+}
+
+function shouldAttachBearer(path: string): boolean {
+  return !isAuthCredentialPath(path);
+}
+
+let sessionRedirectScheduled = false;
+
 class ApiClient {
   private getToken(): string | null {
     if (typeof window === "undefined") return null;
@@ -107,7 +140,7 @@ class ApiClient {
       "Content-Type": "application/json",
     };
 
-    if (token) {
+    if (token && shouldAttachBearer(path)) {
       headers["Authorization"] = `Bearer ${token}`;
     }
 
@@ -118,17 +151,38 @@ class ApiClient {
     });
 
     if (res.status === 401) {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("socialize_token");
-        window.location.href = "/login";
+      let errBody: { error?: string } = {};
+      try {
+        errBody = (await res.json()) as { error?: string };
+      } catch {
+        /* corpo vazio ou nao JSON */
       }
-      throw new Error("Sessao expirada");
+      if (isAuthCredentialPath(path)) {
+        throw new ApiRequestError(
+          errBody.error || "Credenciais invalidas",
+          401
+        );
+      }
+      if (typeof window !== "undefined") {
+        const hadToken = localStorage.getItem("socialize_token") !== null;
+        localStorage.removeItem("socialize_token");
+        if (hadToken && !sessionRedirectScheduled) {
+          sessionRedirectScheduled = true;
+          window.location.replace("/login");
+        }
+      }
+      throw new ApiRequestError(errBody.error || "Sessao expirada", 401);
     }
 
-    const data = await res.json();
+    let data: { error?: string } & Record<string, unknown>;
+    try {
+      data = (await res.json()) as { error?: string } & Record<string, unknown>;
+    } catch {
+      throw new ApiRequestError("Resposta invalida do servidor", res.status);
+    }
 
     if (!res.ok) {
-      throw new Error(data.error || "Erro desconhecido");
+      throw new ApiRequestError(data.error || "Erro desconhecido", res.status);
     }
 
     return data as T;

@@ -4,12 +4,28 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 antialiased;
+    @apply bg-ig-bg text-ig-text antialiased;
   }
 }
 
 @layer utilities {
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /** Wordmark no estilo gradiente do Instagram */
+  .text-gradient-ig {
+    @apply bg-gradient-to-r from-[#f09433] via-[#dc2743] to-[#bc1888] bg-clip-text text-transparent;
+  }
+
+  .ring-gradient-ig {
+    background: linear-gradient(
+      45deg,
+      #f09433,
+      #e6683c,
+      #dc2743,
+      #cc2366,
+      #bc1888
+    );
   }
 }

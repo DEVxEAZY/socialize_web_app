@@ -33,14 +33,14 @@ export default function RegisterPage() {
 
   return (
     <div className="space-y-8">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold text-slate-900">Socialize</h1>
-        <p className="text-slate-500">Crie sua conta</p>
+      <div className="space-y-2 text-center">
+        <h1 className="text-4xl font-semibold text-gradient-ig">Socialize</h1>
+        <p className="text-sm text-ig-muted">Crie sua conta</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-xl">
+          <div className="rounded-sm bg-red-50 px-4 py-3 text-sm text-red-600">
             {error}
           </div>
         )}
@@ -78,9 +78,9 @@ export default function RegisterPage() {
         </Button>
       </form>
 
-      <p className="text-center text-sm text-slate-500">
+      <p className="text-center text-sm text-ig-muted">
         Ja tem conta?{" "}
-        <Link href="/login" className="text-primary-600 hover:text-primary-700 font-medium">
+        <Link href="/login" className="font-semibold text-primary-500 hover:text-primary-600">
           Entrar
         </Link>
       </p>

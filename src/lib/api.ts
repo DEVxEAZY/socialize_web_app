@@ -2,6 +2,22 @@ const API_BASE =
   process.env.NEXT_PUBLIC_API_URL ??
   "https://socializeserverbackend-production.up.railway.app";
 
+function normalizeCategory(raw: unknown): import("@/types").Category {
+  const r = raw as Record<string, unknown>;
+  return {
+    id: Number(r.id),
+    slug: String(r.slug ?? ""),
+    name: String(r.name ?? ""),
+    // API pode enviar camelCase ou snake_case; sem flag, assume categoria de evento (doc / seed).
+    isEventCategory: Boolean(
+      r.isEventCategory ?? r.is_event_category ?? true
+    ),
+    isInterestCategory: Boolean(
+      r.isInterestCategory ?? r.is_interest_category ?? true
+    ),
+  };
+}
+
 class ApiClient {
   private getToken(): string | null {
     if (typeof window === "undefined") return null;
@@ -94,8 +110,12 @@ class ApiClient {
   }
 
   // Categories
-  getCategories() {
-    return this.get<{ categories: import("@/types").Category[] }>("/api/categories");
+  async getCategories() {
+    const res = await this.get<{ categories?: unknown[] }>("/api/categories");
+    const raw = Array.isArray(res.categories) ? res.categories : [];
+    return {
+      categories: raw.map(normalizeCategory),
+    };
   }
 
   // Events

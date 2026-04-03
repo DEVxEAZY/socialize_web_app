@@ -7,12 +7,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Category } from "@/types";
 
+/** Alinhado ao seed da API (doc); usado se GET /api/categories vier vazio. */
+const FALLBACK_EVENT_CATEGORIES: Category[] = [
+  { id: 1, slug: "esporte", name: "Esporte", isEventCategory: true, isInterestCategory: true },
+  { id: 2, slug: "cultura", name: "Cultura", isEventCategory: true, isInterestCategory: true },
+  { id: 3, slug: "musica", name: "Musica", isEventCategory: true, isInterestCategory: true },
+  { id: 4, slug: "trilha", name: "Trilha", isEventCategory: true, isInterestCategory: true },
+  { id: 5, slug: "yoga", name: "Yoga", isEventCategory: true, isInterestCategory: true },
+];
+
 export default function CreateEventPage() {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [usedCategoryFallback, setUsedCategoryFallback] = useState(false);
 
   const [categoryId, setCategoryId] = useState("");
   const [title, setTitle] = useState("");
@@ -30,7 +40,15 @@ export default function CreateEventPage() {
       .getCategories()
       .then((res) => {
         if (!active) return;
-        setCategories(res.categories.filter((c) => c.isEventCategory));
+        const forEvents = res.categories.filter((c) => c.isEventCategory);
+        if (forEvents.length > 0) {
+          setUsedCategoryFallback(false);
+          setCategories(forEvents);
+          return;
+        }
+        // API vazia ou sem flags de evento: permite escolher com lista padrao do seed (doc).
+        setUsedCategoryFallback(true);
+        setCategories(FALLBACK_EVENT_CATEGORIES);
       })
       .catch((err) => {
         if (!active) return;
@@ -104,12 +122,12 @@ export default function CreateEventPage() {
   };
 
   return (
-    <div className="px-4 pt-6 space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900">Criar evento</h1>
+    <div className="space-y-6 px-4 pb-6 pt-4">
+      <h1 className="text-2xl font-semibold text-gradient-ig">Criar evento</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-xl">
+          <div className="rounded-sm bg-red-50 px-4 py-3 text-sm text-red-600">
             {error}
           </div>
         )}
@@ -124,31 +142,47 @@ export default function CreateEventPage() {
         />
 
         <div className="w-full">
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
+          <label
+            htmlFor="event-category"
+            className="mb-1.5 block text-sm font-semibold text-ig-text"
+          >
             Categoria
           </label>
           <select
+            id="event-category"
+            name="categoryId"
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
             required
-            disabled={categoriesLoading}
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900
-              focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-              disabled:bg-slate-50 disabled:text-slate-400"
+            disabled={categoriesLoading || categories.length === 0}
+            className="relative z-10 min-h-[44px] w-full rounded-[3px] border border-ig-border bg-[#fafafa] px-3 py-2.5 text-sm text-ig-text
+              focus:border-ig-muted focus:bg-white focus:outline-none focus:ring-0
+              disabled:cursor-not-allowed disabled:bg-ig-bg disabled:text-ig-muted"
           >
             <option value="">
-              {categoriesLoading ? "Carregando categorias..." : "Selecione..."}
+              {categoriesLoading
+                ? "Carregando categorias..."
+                : categories.length === 0
+                  ? "Nenhuma categoria disponivel"
+                  : "Selecione..."}
             </option>
             {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
+              <option key={cat.id} value={String(cat.id)}>
                 {cat.name}
               </option>
             ))}
           </select>
+          {!categoriesLoading && usedCategoryFallback && (
+            <p className="mt-2 rounded-sm border border-ig-border bg-ig-bg px-3 py-2 text-sm text-ig-text">
+              A API nao retornou categorias; estamos mostrando as categorias padrao do produto. Se
+              criar falhar, rode <code className="text-xs">npm run db:seed</code> no servidor e
+              confira <code className="text-xs">NEXT_PUBLIC_API_URL</code>.
+            </p>
+          )}
         </div>
 
         <div className="w-full">
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
+          <label className="mb-1.5 block text-sm font-semibold text-ig-text">
             Descricao
           </label>
           <textarea
@@ -156,8 +190,8 @@ export default function CreateEventPage() {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Descreva o evento..."
             rows={3}
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900
-              placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
+            className="w-full resize-none rounded-[3px] border border-ig-border bg-[#fafafa] px-3 py-2.5 text-sm text-ig-text
+              placeholder:text-ig-muted focus:border-ig-muted focus:bg-white focus:outline-none focus:ring-0"
           />
         </div>
 
@@ -186,7 +220,7 @@ export default function CreateEventPage() {
         />
 
         <div className="w-full">
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
+          <label className="mb-1.5 block text-sm font-semibold text-ig-text">
             Visibilidade
           </label>
           <div className="flex gap-2">
@@ -195,10 +229,10 @@ export default function CreateEventPage() {
                 key={v}
                 type="button"
                 onClick={() => setVisibility(v)}
-                className={`flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-colors
+                className={`flex-1 rounded-md px-3 py-2 text-sm font-semibold transition-colors
                   ${visibility === v
-                    ? "bg-primary-600 text-white"
-                    : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                    ? "bg-ig-text text-white"
+                    : "border border-ig-border bg-white text-ig-muted hover:text-ig-text"
                   }`}
               >
                 {v === "public" ? "Publico" : v === "friends" ? "Amigos" : "Privado"}

@@ -36,8 +36,8 @@ export default function ForgotPasswordPage() {
           </svg>
         </div>
         <div className="space-y-2">
-          <h2 className="text-xl font-bold text-slate-900">Email enviado!</h2>
-          <p className="text-sm text-slate-500">
+          <h2 className="text-xl font-semibold text-ig-text">Email enviado!</h2>
+          <p className="text-sm text-ig-muted">
             Se o email estiver cadastrado, voce recebera um codigo de 6 digitos para redefinir sua senha.
           </p>
         </div>
@@ -45,7 +45,7 @@ export default function ForgotPasswordPage() {
           <Link href="/reset-password">
             <Button className="w-full">Inserir codigo</Button>
           </Link>
-          <Link href="/login" className="text-sm text-primary-600 hover:text-primary-700 block">
+          <Link href="/login" className="block text-sm font-semibold text-primary-500 hover:text-primary-600">
             Voltar ao login
           </Link>
         </div>
@@ -55,14 +55,14 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="space-y-8">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold text-slate-900">Socialize</h1>
-        <p className="text-slate-500">Recuperar senha</p>
+      <div className="space-y-2 text-center">
+        <h1 className="text-4xl font-semibold text-gradient-ig">Socialize</h1>
+        <p className="text-sm text-ig-muted">Recuperar senha</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-xl">
+          <div className="rounded-sm bg-red-50 px-4 py-3 text-sm text-red-600">
             {error}
           </div>
         )}
@@ -81,7 +81,7 @@ export default function ForgotPasswordPage() {
         </Button>
       </form>
 
-      <Link href="/login" className="text-sm text-primary-600 hover:text-primary-700 block text-center">
+      <Link href="/login" className="block text-center text-sm font-semibold text-primary-500 hover:text-primary-600">
         Voltar ao login
       </Link>
     </div>

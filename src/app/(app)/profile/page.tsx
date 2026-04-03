@@ -77,13 +77,13 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="px-4 pt-6 space-y-6">
+    <div className="space-y-5 px-4 pb-4 pt-4">
       {error && (
-        <div className="bg-red-50 border border-red-100 text-red-700 rounded-2xl px-4 py-3 text-sm flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-3 rounded-sm border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
           <span>{error}</span>
           <button
             onClick={retryData}
-            className="font-medium text-red-700 hover:text-red-800"
+            className="font-semibold text-primary-500 hover:text-primary-600"
           >
             Tentar de novo
           </button>
@@ -91,17 +91,19 @@ export default function ProfilePage() {
       )}
 
       {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 text-xl font-bold">
-            {profileUser?.displayName?.charAt(0).toUpperCase()}
+      <div className="flex items-start justify-between border-b border-ig-border pb-4">
+        <div className="flex items-center gap-4">
+          <div className="rounded-full p-[2px] ring-gradient-ig">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white text-2xl font-light text-ig-text">
+              {profileUser?.displayName?.charAt(0).toUpperCase()}
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-slate-900">{profileUser?.displayName}</h1>
-            {profileUser?.bio && <p className="text-sm text-slate-500">{profileUser.bio}</p>}
+          <div className="min-w-0">
+            <h1 className="truncate text-lg font-semibold text-ig-text">{profileUser?.displayName}</h1>
+            {profileUser?.bio && <p className="text-sm text-ig-muted">{profileUser.bio}</p>}
             {profileUser?.locationLabel && (
-              <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <p className="mt-0.5 flex items-center gap-1 text-xs text-ig-muted">
+                <svg className="h-3 w-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                 </svg>
@@ -112,7 +114,7 @@ export default function ProfilePage() {
         </div>
         <button
           onClick={logout}
-          className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+          className="p-2 text-ig-muted transition-colors hover:text-[#ed4956]"
           aria-label="Sair"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -123,13 +125,13 @@ export default function ProfilePage() {
 
       {/* Stats */}
       {profileLoading ? (
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-5 gap-1 border-b border-ig-border pb-4">
           {Array.from({ length: 5 }).map((_, index) => (
-            <div key={index} className="bg-white rounded-xl p-3 border border-slate-100 animate-pulse h-[68px]" />
+            <div key={index} className="h-14 animate-pulse rounded-sm bg-ig-bg" />
           ))}
         </div>
       ) : stats ? (
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-5 gap-1 border-b border-ig-border pb-4 text-center">
           {[
             { label: "Amigos", value: stats.friendsCount },
             { label: "Criados", value: stats.createdCount },
@@ -137,9 +139,9 @@ export default function ProfilePage() {
             { label: "Salvos", value: stats.savedCount },
             { label: "Curtidos", value: stats.likedCount },
           ].map((s) => (
-            <div key={s.label} className="bg-white rounded-xl p-3 text-center border border-slate-100">
-              <p className="text-lg font-bold text-slate-900">{s.value}</p>
-              <p className="text-[10px] text-slate-500">{s.label}</p>
+            <div key={s.label}>
+              <p className="text-base font-semibold text-ig-text">{s.value}</p>
+              <p className="text-[10px] text-ig-muted">{s.label}</p>
             </div>
           ))}
         </div>
@@ -148,7 +150,7 @@ export default function ProfilePage() {
       {/* Interests */}
       {interests.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-sm font-medium text-slate-700">Interesses</h3>
+          <h3 className="text-sm font-semibold text-ig-muted">Interesses</h3>
           <div className="flex flex-wrap gap-2">
             {interests.map((interest) => (
               <CategoryBadge key={interest.id} name={interest.name} slug={interest.slug} />
@@ -158,18 +160,19 @@ export default function ProfilePage() {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-slate-100 rounded-xl p-1">
+      <div className="flex border-b border-ig-border">
         {TABS.map((t) => (
           <button
             key={t.key}
+            type="button"
             onClick={() => setTab(t.key)}
-            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors
-              ${tab === t.key
-                ? "bg-white text-slate-900 shadow-sm"
-                : "text-slate-500 hover:text-slate-700"
-              }`}
+            className={`relative flex-1 py-2.5 text-center text-sm font-semibold transition-colors
+              ${tab === t.key ? "text-ig-text" : "text-ig-muted hover:text-ig-text"}`}
           >
             {t.label}
+            {tab === t.key && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-ig-text" aria-hidden />
+            )}
           </button>
         ))}
       </div>
@@ -177,22 +180,23 @@ export default function ProfilePage() {
       {/* Event list */}
       {loading ? (
         <div className="flex justify-center py-8">
-          <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary-600 border-t-transparent" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-ig-border border-t-ig-text" />
         </div>
       ) : events.length === 0 ? (
-        <p className="text-center text-sm text-slate-400 py-8">
+        <p className="py-8 text-center text-sm text-ig-muted">
           Nenhum evento {tab === "created" ? "criado" : tab === "participated" ? "participando" : "salvo"}
         </p>
       ) : (
-        <div className="space-y-3 pb-4">
+        <div className="divide-y divide-ig-border pb-4 -mx-4">
           {events.map((event) => (
-            <EventCard
-              key={event.id}
-              event={event}
-              categories={categories}
-              initialSaved={tab === "saved"}
-              initialParticipating={tab === "participated"}
-            />
+            <div key={event.id} className="px-4 py-3">
+              <EventCard
+                event={event}
+                categories={categories}
+                initialSaved={tab === "saved"}
+                initialParticipating={tab === "participated"}
+              />
+            </div>
           ))}
         </div>
       )}

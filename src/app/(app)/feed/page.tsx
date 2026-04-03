@@ -34,12 +34,12 @@ export default function FeedPage() {
   }, [loadData]);
 
   return (
-    <div className="px-4 pt-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">Eventos</h1>
+    <div className="space-y-4 px-4 pt-4">
+      <div className="flex items-center justify-between border-b border-ig-border pb-3">
+        <h1 className="text-2xl font-semibold text-gradient-ig tracking-tight">Socialize</h1>
         <button
           onClick={loadData}
-          className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
+          className="p-2 text-ig-muted hover:text-ig-text transition-colors"
           aria-label="Atualizar"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -48,23 +48,23 @@ export default function FeedPage() {
         </button>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 pb-2">
         <button
           onClick={() => setMode("recommended")}
-          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors
+          className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors
             ${mode === "recommended"
-              ? "bg-primary-600 text-white"
-              : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+              ? "bg-ig-text text-white"
+              : "bg-transparent text-ig-muted border border-ig-border hover:text-ig-text"
             }`}
         >
           Recomendados
         </button>
         <button
           onClick={() => setMode("all")}
-          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors
+          className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors
             ${mode === "all"
-              ? "bg-primary-600 text-white"
-              : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+              ? "bg-ig-text text-white"
+              : "bg-transparent text-ig-muted border border-ig-border hover:text-ig-text"
             }`}
         >
           Todos
@@ -72,11 +72,11 @@ export default function FeedPage() {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-100 text-red-700 rounded-2xl px-4 py-3 text-sm flex items-center justify-between gap-3">
+        <div className="bg-red-50 border border-red-100 text-red-700 rounded-sm px-4 py-3 text-sm flex items-center justify-between gap-3">
           <span>{error}</span>
           <button
             onClick={loadData}
-            className="font-medium text-red-700 hover:text-red-800"
+            className="font-semibold text-primary-500 hover:text-primary-600"
           >
             Tentar de novo
           </button>
@@ -85,27 +85,29 @@ export default function FeedPage() {
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary-600 border-t-transparent" />
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-ig-border border-t-ig-text" />
         </div>
       ) : events.length === 0 ? (
         <div className="text-center py-12 space-y-2">
-          <svg className="w-12 h-12 text-slate-300 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+          <svg className="w-12 h-12 text-ig-border mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
           </svg>
-          <p className="text-slate-500">Nenhum evento encontrado</p>
+          <p className="text-ig-muted text-sm">Nenhum evento encontrado</p>
           {mode === "recommended" && (
             <button
               onClick={() => setMode("all")}
-              className="text-sm text-primary-600 hover:text-primary-700"
+              className="text-sm font-semibold text-primary-500 hover:text-primary-600"
             >
               Ver todos os eventos
             </button>
           )}
         </div>
       ) : (
-        <div className="space-y-3 pb-4">
+        <div className="divide-y divide-ig-border pb-4 -mx-4">
           {events.map((event) => (
-            <EventCard key={event.id} event={event} categories={categories} />
+            <div key={event.id} className="px-4 py-3">
+              <EventCard event={event} categories={categories} />
+            </div>
           ))}
         </div>
       )}

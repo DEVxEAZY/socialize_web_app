@@ -38,25 +38,31 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 safe-bottom z-50">
-      <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-ig-border safe-bottom z-50">
+      <div className="flex items-center justify-around h-[49px] max-w-lg mx-auto">
         {navItems.map((item) => {
           const active = pathname.startsWith(item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors
+              className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1 transition-colors
                 ${item.special
-                  ? "bg-primary-600 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg shadow-primary-600/30 -mt-4"
+                  ? "text-ig-text -mt-1"
                   : active
-                    ? "text-primary-600"
-                    : "text-slate-400 hover:text-slate-600"
+                    ? "text-ig-text"
+                    : "text-ig-muted hover:text-ig-text"
                 }`}
             >
-              {item.icon(active)}
+              {item.special ? (
+                <span className="flex h-6 w-6 items-center justify-center rounded-[3px] border-[1.5px] border-ig-text">
+                  {item.icon(active)}
+                </span>
+              ) : (
+                item.icon(active)
+              )}
               {!item.special && (
-                <span className="text-[10px] font-medium">{item.label}</span>
+                <span className="text-[10px] font-normal tracking-tight">{item.label}</span>
               )}
             </Link>
           );

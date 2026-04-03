@@ -32,14 +32,14 @@ export default function LoginPage() {
 
   return (
     <div className="space-y-8">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold text-slate-900">Socialize</h1>
-        <p className="text-slate-500">Entre na sua conta</p>
+      <div className="space-y-2 text-center">
+        <h1 className="text-4xl font-semibold text-gradient-ig">Socialize</h1>
+        <p className="text-sm text-ig-muted">Entre na sua conta</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-xl">
+          <div className="rounded-sm bg-red-50 px-4 py-3 text-sm text-red-600">
             {error}
           </div>
         )}
@@ -68,12 +68,12 @@ export default function LoginPage() {
       </form>
 
       <div className="space-y-3 text-center text-sm">
-        <Link href="/forgot-password" className="text-primary-600 hover:text-primary-700 block">
+        <Link href="/forgot-password" className="block font-semibold text-ig-text hover:text-ig-muted">
           Esqueci minha senha
         </Link>
-        <p className="text-slate-500">
+        <p className="text-ig-muted">
           Nao tem conta?{" "}
-          <Link href="/register" className="text-primary-600 hover:text-primary-700 font-medium">
+          <Link href="/register" className="font-semibold text-primary-500 hover:text-primary-600">
             Criar conta
           </Link>
         </p>

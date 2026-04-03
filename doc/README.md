@@ -37,7 +37,7 @@ npm install
 cp .env.example .env
 # Editar .env com suas credenciais
 
-# Popular banco com dados de desenvolvimento
+# Opcional: usuario demo e evento de exemplo (categorias ja entram ao iniciar o servidor)
 npm run db:seed
 
 # Iniciar em desenvolvimento (com hot reload)
@@ -54,7 +54,7 @@ npm start
 | `npm start` | Inicia o servidor |
 | `npm run start:local` | Inicia carregando `.env` |
 | `npm run dev` | Desenvolvimento com `--watch` e `.env` |
-| `npm run db:seed` | Popula categorias, usuario demo e evento de exemplo |
+| `npm run db:seed` | Opcional em dev: usuario demo e evento de exemplo (categorias padrao entram ao iniciar a API) |
 
 ---
 
@@ -65,7 +65,7 @@ npm start
 | `JWT_SECRET` | Sim | - | Chave secreta para assinar tokens JWT |
 | `PORT` | Nao | `3000` | Porta do servidor |
 | `NODE_ENV` | Nao | `production` | `development`, `production` ou `test` |
-| `CORS_ORIGIN` | Sim (prod) | - | Origens permitidas, separadas por virgula |
+| `CORS_ORIGIN` | Sim (prod, se `APP_URL` nao for uma URL valida) | - | Origens permitidas, separadas por virgula |
 | `DATABASE_PATH` | Nao | `./data/socialize.sqlite` | Caminho do banco SQLite |
 | `SMTP_HOST` | Nao | `smtp.hostinger.com` | Host SMTP |
 | `SMTP_PORT` | Nao | `465` | Porta SMTP |
@@ -348,15 +348,15 @@ Lista todas as categorias disponiveis.
 }
 ```
 
-**Categorias do seed:**
+**Categorias padrao (catalogo fixo):** inseridas automaticamente na subida do servidor (`src/domain/catalog/defaultCatalog.js`). IDs podem variar conforme o banco; use `slug` como identificador estavel na integracao.
 
-| ID | Slug | Nome |
-|---|---|---|
-| 1 | `esporte` | Esporte |
-| 2 | `cultura` | Cultura |
-| 3 | `musica` | Musica |
-| 4 | `trilha` | Trilha |
-| 5 | `yoga` | Yoga |
+| Slug | Nome |
+|---|---|
+| `esporte` | Esporte |
+| `cultura` | Cultura |
+| `musica` | Musica |
+| `trilha` | Trilha |
+| `yoga` | Yoga |
 
 ---
 
@@ -1084,8 +1084,11 @@ SQLite com migrations versionadas em `src/infrastructure/database/migrations/`. 
 
 ### CORS
 
-Em producao, `CORS_ORIGIN` e obrigatorio. Aceita multiplas origens separadas por virgula:
+Em producao, o backend libera as origens definidas em `CORS_ORIGIN` e tambem inclui `APP_URL` automaticamente quando ele for uma URL `http(s)` valida. Aceita multiplas origens separadas por virgula:
 
 ```
 CORS_ORIGIN=https://meuapp.com,https://admin.meuapp.com
+APP_URL=https://meuapp.com
 ```
+
+Nao inclua aspas nos valores das variaveis no painel da plataforma.

@@ -31,14 +31,14 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="space-y-8">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold text-slate-900">Socialize</h1>
-        <p className="text-slate-500">Redefinir senha</p>
+      <div className="space-y-2 text-center">
+        <h1 className="text-4xl font-semibold text-gradient-ig">Socialize</h1>
+        <p className="text-sm text-ig-muted">Redefinir senha</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-xl">
+          <div className="rounded-sm bg-red-50 px-4 py-3 text-sm text-red-600">
             {error}
           </div>
         )}
@@ -68,7 +68,7 @@ export default function ResetPasswordPage() {
         </Button>
       </form>
 
-      <Link href="/login" className="text-sm text-primary-600 hover:text-primary-700 block text-center">
+      <Link href="/login" className="block text-center text-sm font-semibold text-primary-500 hover:text-primary-600">
         Voltar ao login
       </Link>
     </div>
